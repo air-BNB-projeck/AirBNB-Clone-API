@@ -1,0 +1,433 @@
+openapi: 3.0.0
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/kurnhyalcantara/alta-airbnb-api/1.0.0
+info:
+  title: Alta AirBNB API
+  description: API endpoint for Alta AirBNB
+  version: 1.0.0
+security:
+  - bearerAuth: []
+paths:
+  /users:
+    post:
+      summary: Buat akun baru
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User berhasil ditambahkan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid request
+    get:
+      summary: Mendapatkan semua pengguna
+      description: Mendapatkan semua pengguna terdaftar
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllUserResponse'
+  /users/{id}:
+    get:
+      summary: Mendapatkan data user spesifik
+      description: Mendapatkan data user spesifik berdasarkan ID
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User not found
+    put:
+      summary: Edit data user
+      description: Edit data user terdaftar
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Berhasil memperbarui data user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User not found
+    delete:
+      summary: Delete User
+      description: Delete an existing user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+  /stays:
+    post:
+      summary: Tambah rumah sewa
+      description: Menambahkan rumah sewaan
+      tags:
+        - Stays
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StayRequest'
+      responses:
+        '201':
+          description: Berhasil menambahkan rumah sewaan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddStayResponse'
+    get:
+      summary: Semua data rumah sewa
+      description: Dapatkan semua data rumah sewa
+      tags:
+        - Stays
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllStayResponse'
+  /stays/{id}:
+    get:
+      summary: Dapatkan rumah sewa berdasarkan ID
+      description: Mendapatkan rumah sewa berdasarkan ID
+      tags:
+        - Stays
+      parameters:
+        - name: id
+          in: path
+          description: Stay ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetStayByIdResponse'
+        '404':
+          description: Stay not found
+    put:
+      summary: Edit rumah sewa
+      description: Perbarui data rumah sewa
+      tags:
+        - Stays
+      parameters:
+        - name: id
+          in: path
+          description: Stay ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StayRequest'
+      responses:
+        '200':
+          description: Stay updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: Stay not found
+    delete:
+      summary: Hapus Rumah Sewa
+      description: Delete an existing stay
+      tags:
+        - Stays
+      parameters:
+        - name: id
+          in: path
+          description: Stay ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Stay deleted successfully
+        '404':
+          description: Stay not found
+  /reservations/check:
+    post:
+      summary: Cek ketersediaan rumah sewa
+      description: Cek ketersediaan rumah sewa dengan rentang tanggal tertentu.
+      tags:
+        - Reservations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationRequest'
+      responses:
+        '200':
+          description: Reservation status response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationStatusResponse'
+        '400':
+          description: Invalid request
+  /reservations:
+    post:
+      summary: Create a reservation
+      description: Create a reservation for a room with the specified details.
+      tags:
+        - Reservations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReservationRequest'
+      responses:
+        '200':
+          description: Successful reservation creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '400':
+          description: Invalid request
+components:
+  schemas:
+    UserResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        status:
+          type: string
+          example: success
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: d6b4b0d4-2c89-4597-831e-5d641f9cc821
+        fullname:
+          type: string
+          example: Kurniawan
+        email:
+          type: string
+          format: email
+          example: kurnhy@gmail.com
+        phone:
+          type: string
+        birth:
+          type: string
+          format: date
+        address:
+          type: string
+    AllUserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: d6b4b0d4-2c89-4597-831e-5d641f9cc821
+        fullname:
+          type: string
+          example: Kurniawan
+        birth:
+          type: string
+          format: date
+        address:
+          type: string
+    StayRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+          format: double
+        description:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+    AddStayResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+    AllStayResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          properties:
+            stays:
+              type: array
+              items:
+                $ref: '#/components/schemas/Stay'
+    GetStayByIdResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        data:
+          $ref: '#/components/schemas/Stay'
+    Stay:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+          format: double
+        description:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        ratings:
+          type: number
+          format: double
+        images:
+          type: array
+          items:
+            type: string
+    ReservationRequest:
+      type: object
+      properties:
+        room_id:
+          type: integer
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+    ReservationStatusResponse:
+      type: object
+      properties:
+        room_status:
+          type: string
+    CreateReservationRequest:
+      type: object
+      properties:
+        room_id:
+          type: integer
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        credit_card:
+          $ref: '#/components/schemas/CreditCard'
+    CreditCard:
+      type: object
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        number:
+          type: string
+        cvv:
+          type: integer
+        month:
+          type: integer
+        year:
+          type: integer
+    ReservationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          properties:
+            reservationId:
+              type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
