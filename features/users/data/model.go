@@ -1,15 +1,19 @@
 package data
 
-import "alta/air-bnb/features/users"
+import (
+	"alta/air-bnb/features/users"
+
+	"gorm.io/gorm"
+)
 
 type Users struct {
-	ID 				string  `gorm:"type:varchar(50);primaryKey"`
-	FullName	string 	`gorm:"type:varchar(100);notNull"`
-	Email			string 	`gorm:"type:varchar(50);unique:notNull"`
-	Password 	string 	`gorm:"type:varchar(50);notNull"`
-	Phone			string	`gorm:"type:varchar(50);unique"`
-	Birth			string	`gorm:"type:date"`
-	Address		string	`gorm:"type:text"`
+	gorm.Model
+	FullName	string 		`gorm:"type:varchar(100);notNull"`
+	Email			string 		`gorm:"type:varchar(50);unique:notNull"`
+	Password 	string 		`gorm:"type:varchar(100);notNull"`
+	Phone			string		`gorm:"type:varchar(50);unique"`
+	Birth			string	`gorm:"type:varchar(50)"`
+	Address		string		`gorm:"type:text"`
 }
 
 func ModelToCore(model Users) users.Core {
@@ -25,7 +29,6 @@ func ModelToCore(model Users) users.Core {
 
 func CoreToModel(user users.Core) Users {
 	return Users{
-		ID: user.ID,
 		FullName: user.FullName,
 		Email: user.Email,
 		Phone: user.Phone,
@@ -40,5 +43,16 @@ func ModelToCoreGetAll(model Users) users.CoreGetAllResponse {
 		FullName: model.FullName,
 		Birth: model.Birth,
 		Address: model.Address,
+	}
+}
+
+func CoreRequestToModel(request users.CoreUserRequest) Users {
+	return Users{
+		FullName: request.FullName,
+		Email: request.Email,
+		Password: request.Password,
+		Phone: request.Phone,
+		Birth: request.Birth,
+		Address: request.Address, 
 	}
 }

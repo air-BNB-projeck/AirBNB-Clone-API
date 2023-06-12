@@ -4,6 +4,7 @@ import (
 	"alta/air-bnb/app/config"
 	"alta/air-bnb/app/database"
 	"alta/air-bnb/app/migrations"
+	"alta/air-bnb/app/routers"
 	"log"
 
 	"github.com/labstack/echo/v4"
@@ -25,5 +26,7 @@ func main() {
 	echo.Pre(middleware.RemoveTrailingSlash())
 	echo.Use(middleware.CORS())
 
+	routers.InitRouters(database, echo)
+	
 	echo.Logger.Fatal(echo.Start(":8080"))
 }
