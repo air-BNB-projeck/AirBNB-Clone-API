@@ -30,22 +30,6 @@ func (repo *UserData) Select(userId uint) (users.Core, error) {
 	return mapUser, nil
 }
 
-// SelectAll implements users.UserDataInterface
-func (repo *UserData) SelectAll() ([]users.CoreGetAllResponse, error) {
-	var usersData []Users
-	if tx := repo.db.Find(&usersData); tx.Error != nil {
-		return nil, tx.Error
-	}
-
-	var mapUsers []users.CoreGetAllResponse 
-	for _, user := range usersData {
-		var userData = ModelToCoreGetAll(user)
-		mapUsers = append(mapUsers, userData)
-	}
-
-	return mapUsers, nil
-}
-
 // Update implements users.UserDataInterface
 func (repo *UserData) Update(userId uint, userData users.CoreUserRequest) error {
 	var user Users
@@ -65,6 +49,18 @@ func (repo *UserData) Delete(userId uint) error {
 		return tx.Error
 	}
 	return nil
+}
+
+func (repo *UserData) VerifyEmailUser(email string) (users.CoreLoginUserData, error) {
+	var user Users
+	if tx := repo.db.Where("email = ?", email).First(&user); tx.Error != nil {
+		return users.CoreLoginUserData{}, tx.Error
+	}
+	var userMap = users.CoreLoginUserData{
+		ID: user.ID,
+		Password: user.Password,
+	}
+	return userMap, nil
 }
 
 func New(db *gorm.DB) users.UserDataInterface {

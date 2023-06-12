@@ -25,18 +25,28 @@ type CoreUserRequest struct {
 	Address		string		`json:"address" form:"address"`
 }
 
+type CoreLoginUserRequest struct {
+	Email 		string 			`json:"email" form:"email" validate:"required,email"`
+	Password	string 			`json:"password" form:"email" validate:"required,min=8"`
+}
+
+type CoreLoginUserData struct {
+	ID			 uint 
+	Password string
+}
+
 type UserDataInterface interface {
 	Insert(userData CoreUserRequest) (uint, error)
 	Update(userId uint, userData CoreUserRequest) error
 	Select(userId uint) (Core, error)
-	SelectAll() ([]CoreGetAllResponse, error)
 	Delete(userId uint) error
+	VerifyEmailUser(email string) (CoreLoginUserData, error)
 }
 
 type UserServiceInterface interface {
 	RegisterUser(userData CoreUserRequest) (uint, error)
 	EditUserById(userId uint, userData CoreUserRequest) error
 	GetUserById(userId uint) (Core, error)
-	GetAllUsers() ([]CoreGetAllResponse, error)
 	DeleteUserById(userId uint) error
+	LoginUser(loginPayload CoreLoginUserRequest) (uint, error)
 }

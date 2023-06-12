@@ -2,8 +2,8 @@ package handler
 
 import (
 	"alta/air-bnb/app/helper"
+	"alta/air-bnb/app/middlewares"
 	"alta/air-bnb/features/users"
-	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -31,22 +31,12 @@ func (handler *UserHandler) PostUserHandler(c echo.Context) error {
 	})
 }
 
-func (handler *UserHandler) GetAllUsersHandler(c echo.Context) error {
-	users, err := handler.service.GetAllUsers()
-	if err != nil {
-		return helper.StatusInternalServerError(c, err.Error())
-	}
-	return helper.StatusOKWithData(c, "Berhasil mendapatkan data pengguna", map[string]any{
-		"users": users,
-	})
-}
-
 func (handler *UserHandler) GetUserByIdHandler(c echo.Context) error {
-	userId, errParam := strconv.Atoi(c.Param("id"))
-	if userId == 0 && errParam != nil {
-		return helper.StatusBadRequestResponse(c, "invalid param request: " + errParam.Error())
+	userId := middlewares.ExtractTokenUserId(c)
+	if userId == 0 {
+		return helper.StatusAuthorizationErrorResponse(c, "Anda harus login untuk mengakses resource ini")
 	} else {
-		user, err := handler.service.GetUserById(uint(userId))
+		user, err := handler.service.GetUserById(userId)
 		if err != nil {
 			return helper.StatusInternalServerError(c, err.Error())
 		}
@@ -57,9 +47,9 @@ func (handler *UserHandler) GetUserByIdHandler(c echo.Context) error {
 }
 
 func (handler *UserHandler) UpdateUserByIdHandler(c echo.Context) error {
-	userId, errParam := strconv.Atoi(c.Param("id"))
-	if userId == 0 && errParam != nil {
-		return helper.StatusBadRequestResponse(c, "invalid param request: " + errParam.Error())
+	userId := middlewares.ExtractTokenUserId(c)
+	if userId == 0 {
+		return helper.StatusAuthorizationErrorResponse(c, "Anda harus login untuk merubah resource ini")
 	} else {
 		var payload users.CoreUserRequest
 		if errBind := c.Bind(&payload); errBind != nil {
@@ -77,15 +67,33 @@ func (handler *UserHandler) UpdateUserByIdHandler(c echo.Context) error {
 }
 
 func (handler *UserHandler) DeleteUserByIdHandler(c echo.Context) error {
-	userId, errParam := strconv.Atoi(c.Param("id"))
-	if userId == 0 && errParam != nil {
-		return helper.StatusBadRequestResponse(c, "invalid param request: " + errParam.Error())
+	userId := middlewares.ExtractTokenUserId(c)
+	if userId == 0 {
+		return helper.StatusAuthorizationErrorResponse(c, "Anda harus login untuk menghapus resource ini")
 	} else {
 		if err := handler.service.DeleteUserById(uint(userId)); err != nil {
 			return helper.StatusInternalServerError(c, err.Error())
 		}
 		return helper.StatusOK(c, "Berhasil menghapus data pengguna")
 	}
+}
+
+func (handler *UserHandler) LoginUserHandler(c echo.Context) error {
+	var payload users.CoreLoginUserRequest
+	if errBind := c.Bind(&payload); errBind != nil {
+		return helper.StatusBadRequestResponse(c, "error bind payload: " + errBind.Error())
+	}
+	userId, errLogin := handler.service.LoginUser(payload)
+	if errLogin != nil {
+		return helper.StatusBadRequestResponse(c, errLogin.Error())
+	}
+	accessToken, errCreateAccessToken := middlewares.CreateAccessToken(userId)
+	if errCreateAccessToken != nil {
+		return helper.StatusInternalServerError(c, "error create access token: " + errCreateAccessToken.Error())
+	}
+	return helper.StatusOKWithData(c, "Login berhasil", map[string]any{
+		"accessToken": accessToken,
+	})
 }
 
 func New(service users.UserServiceInterface) *UserHandler {
