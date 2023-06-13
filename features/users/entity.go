@@ -6,14 +6,14 @@ type Core struct {
 	Email			string		`json:"email" form:"email"`
 	Phone			string		`json:"phone" form:"phone"`
 	Birth			string		`json:"birth" form:"birth"`
-	Address		string		`json:"address" form:"address"`
+	Gender		string		`json:"gender" form:"gender"`
 }
 
 type CoreGetAllResponse struct {
 	ID 				uint 		`json:"id" form:"id"`
 	FullName	string		`json:"fullname" form:"fullname"`
 	Birth			string		`json:"birth" form:"birth"`
-	Address		string		`json:"address" form:"address"`
+	Gender		string		`json:"gender" form:"gender"`
 }
 
 type CoreUserRequest struct {
@@ -22,7 +22,7 @@ type CoreUserRequest struct {
 	Phone			string		`json:"phone" form:"phone"`
 	Password	string 		`json:"password" form:"password" validate:"required,min=8"`
 	Birth			string		`json:"birth" form:"birth"`
-	Address		string		`json:"address" form:"address"`
+	Gender		string		`json:"gender" form:"gender"`
 }
 
 type CoreLoginUserRequest struct {

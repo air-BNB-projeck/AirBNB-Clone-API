@@ -4,11 +4,30 @@ servers:
     url: https://virtserver.swaggerhub.com/kurnhyalcantara/alta-airbnb-api/1.0.0
 info:
   title: Alta AirBNB API
-  description: API endpoint for Alta AirBNB
-  version: 1.0.0
-security:
-  - bearerAuth: []
+  description: API endpoint for Alta AirBNB Kelompok 4
+  version: 1.0.1
 paths:
+  /login:
+    post:
+      summary: User login
+      description: Authenticate a user with email and password.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Invalid request
   /users:
     post:
       summary: Buat akun baru
@@ -19,19 +38,33 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/UserRequest'
       responses:
         '201':
           description: User berhasil ditambahkan
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: status
+                  message:
+                    type: string
+                    example: 'Berhasil menambahkan user'
+                  data:
+                    type: object
+                    properties:
+                      userId:
+                        type: number
+                        example: 1
         '400':
           description: Invalid request
+  /users/profile:
     get:
-      summary: Mendapatkan semua pengguna
-      description: Mendapatkan semua pengguna terdaftar
+      summary: Mendapatkan data user profile
+      description: Mendapatkan data user profile berdasarkan token
       tags:
         - Users
       responses:
@@ -40,47 +73,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AllUserResponse'
-  /users/{id}:
-    get:
-      summary: Mendapatkan data user spesifik
-      description: Mendapatkan data user spesifik berdasarkan ID
-      tags:
-        - Users
-      parameters:
-        - name: id
-          in: path
-          description: User ID
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/UserGetByIdResponse'
         '404':
           description: User not found
+      security:
+        - bearerAuth: []
     put:
-      summary: Edit data user
-      description: Edit data user terdaftar
+      summary: Edit data profile user
+      description: Edit data profile user
       tags:
         - Users
-      parameters:
-        - name: id
-          in: path
-          description: User ID
-          required: true
-          schema:
-            type: string
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/UserRequest'
       responses:
         '200':
           description: Berhasil memperbarui data user
@@ -90,23 +107,20 @@ paths:
                 $ref: '#/components/schemas/UserResponse'
         '404':
           description: User not found
+      security:
+        - bearerAuth: []
     delete:
       summary: Delete User
       description: Delete an existing user
       tags:
         - Users
-      parameters:
-        - name: id
-          in: path
-          description: User ID
-          required: true
-          schema:
-            type: string
       responses:
         '204':
           description: User deleted successfully
         '404':
           description: User not found
+      security:
+        - bearerAuth: []
   /stays:
     post:
       summary: Tambah rumah sewa
@@ -126,6 +140,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AddStayResponse'
+      security:
+        - bearerAuth: []
     get:
       summary: Semua data rumah sewa
       description: Dapatkan semua data rumah sewa
@@ -187,6 +203,8 @@ paths:
                 $ref: '#/components/schemas/UserResponse'
         '404':
           description: Stay not found
+      security:
+        - bearerAuth: []
     delete:
       summary: Hapus Rumah Sewa
       description: Delete an existing stay
@@ -204,6 +222,8 @@ paths:
           description: Stay deleted successfully
         '404':
           description: Stay not found
+      security:
+        - bearerAuth: []
   /reservations/check:
     post:
       summary: Cek ketersediaan rumah sewa
@@ -225,6 +245,8 @@ paths:
                 $ref: '#/components/schemas/ReservationStatusResponse'
         '400':
           description: Invalid request
+      security:
+        - bearerAuth: []
   /reservations:
     post:
       summary: Create a reservation
@@ -246,6 +268,24 @@ paths:
                 $ref: '#/components/schemas/ReservationResponse'
         '400':
           description: Invalid request
+      security:
+        - bearerAuth: []
+    get:
+      summary: Get reservations
+      description: Get a list of reservations.
+      tags:
+        - Reservations
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetReservationsResponse'
+        '400':
+          description: Invalid request
+      security:
+        - bearerAuth: []
 components:
   schemas:
     UserResponse:
@@ -269,14 +309,18 @@ components:
           type: string
           format: email
           example: kurnhy@gmail.com
+        password:
+          type: string
+          format: password
+          example: supersecret
         phone:
           type: string
         birth:
           type: string
           format: date
-        address:
+        gender:
           type: string
-    AllUserResponse:
+    UserGetByIdResponse:
       type: object
       properties:
         id:
@@ -285,11 +329,66 @@ components:
         fullname:
           type: string
           example: Kurniawan
+        email:
+          type: string
+          format: email
+          example: kurnhy@gmail.com
+        phone:
+          type: string
         birth:
           type: string
           format: date
-        address:
+        gender:
           type: string
+    UserRequest:
+      type: object
+      properties:
+        fullname:
+          type: string
+          example: Kurniawan
+        email:
+          type: string
+          format: email
+          example: kurnhy@gmail.com
+        password:
+          type: string
+          format: password
+          example: supersecret
+        phone:
+          type: string
+        birth:
+          type: string
+          format: date
+        gender:
+          type: string
+    AllUserResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: Berhasil mendapatkan data user
+        data:
+          type: object
+          properties:
+            users:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: number
+                    example: 1
+                  fullname:
+                    type: string
+                    example: Kurniawan
+                  birth:
+                    type: string
+                    format: date
+                  gender:
+                    type: string
     StayRequest:
       type: object
       properties:
@@ -426,8 +525,55 @@ components:
           properties:
             reservationId:
               type: string
+    GetReservationsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          properties:
+            reservations:
+              type: array
+              items:
+                $ref: '#/components/schemas/Reservation'
+    Reservation:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        reservation_id:
+          type: integer
+        room_name:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        price:
+          type: number
+        total_price:
+          type: number
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    LoginResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    bearerAuth: # Bearer token authentication
+      type: apiKey
+      name: Authorization
+      in: header
+      description: Enter your Bearer token in the format "Bearer {token}"

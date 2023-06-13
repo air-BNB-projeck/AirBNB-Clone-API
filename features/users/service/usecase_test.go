@@ -16,7 +16,7 @@ func TestInsertData(t *testing.T) {
 		Phone: "08123456789",
 		Password: "supersecret",
 		Birth: "1999-03-12",
-		Address: "Jl. xxx",
+		Gender: "Male",
 	}
 
 	t.Run("Insert data success", func(t *testing.T) {
