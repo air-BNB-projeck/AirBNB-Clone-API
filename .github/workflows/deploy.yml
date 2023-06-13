@@ -1,0 +1,42 @@
+name: Deploy App to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/airbnb:latest
+      - name: Connect to server using SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            docker stop airbnb-container
+            docker rm airbnb-container
+            docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/airbnb
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/airbnb
+            docker run -d -p 80:8080 -e JWT_ACCESS_TOKEN=${{ secrets.JWT_ACCESS_TOKEN }} -e DB_USERNAME=${{ secrets.DB_USERNAME }} -e DB_PASS=${{ secrets.DB_PASS }} -e DB_HOSTNAME=${{ secrets.DB_HOSTNAME }} -e DB_PORT=${{ secrets.DB_PORT }} -e DB_NAME=${{ secrets.DB_NAME }} --name airbnb-container ${{ secrets.DOCKERHUB_USERNAME }}/airbnb:latest
