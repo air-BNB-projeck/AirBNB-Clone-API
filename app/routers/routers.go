@@ -6,6 +6,10 @@ import (
 	_userHandler "alta/air-bnb/features/users/handler"
 	_userService "alta/air-bnb/features/users/service"
 
+	_stayData "alta/air-bnb/features/stays/data"
+	_stayHandler "alta/air-bnb/features/stays/handler"
+	_stayService "alta/air-bnb/features/stays/service"
+
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -15,9 +19,19 @@ func InitRouters(db *gorm.DB, e *echo.Echo) {
 	UserService := _userService.New(UserData)
 	UserHandler := _userHandler.New(UserService)
 
+	StayData := _stayData.New(db)
+	StayService := _stayService.New(StayData)
+	StayHandler := _stayHandler.New(StayService)
+
 	e.POST("/users", UserHandler.PostUserHandler)
 	e.GET("/users/profile", UserHandler.GetUserByIdHandler, middlewares.JWTMiddleware())
 	e.PUT("/users/profile", UserHandler.UpdateUserByIdHandler, middlewares.JWTMiddleware())
 	e.DELETE("/users/profile", UserHandler.DeleteUserByIdHandler, middlewares.JWTMiddleware())
 	e.POST("/login", UserHandler.LoginUserHandler)
+
+	e.POST("/stays", StayHandler.PostStayHandler, middlewares.JWTMiddleware())
+	e.GET("/stays", StayHandler.GetAllStaysHandler)
+	e.GET("/stays/:id", StayHandler.GetStayHandler)
+	e.PUT("/stays/:id", StayHandler.PutStayHandler, middlewares.JWTMiddleware())
+	e.DELETE("/stays/:id", StayHandler.DeleteStayHandler, middlewares.JWTMiddleware())
 }
