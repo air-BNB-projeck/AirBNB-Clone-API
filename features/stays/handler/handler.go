@@ -18,6 +18,11 @@ func (handler *StayHandler) PostStayHandler(c echo.Context) error {
 	if errBind := c.Bind(&payload); errBind != nil {
 		return helper.StatusBadRequestResponse(c, "error bind payload: " + errBind.Error())
 	}
+	file, err := c.FormFile("image");
+	if err != nil {
+		return helper.StatusBadRequestResponse(c, "error get file image: " + err.Error())
+	}
+	payload.Image = file 
 	userId := middlewares.ExtractTokenUserId(c)
 	payload.UserID = userId
 	stayId, err := handler.service.AddStay(payload);

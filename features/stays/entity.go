@@ -1,5 +1,7 @@
 package stays
 
+import "mime/multipart"
+
 type Core struct {
 	ID 						string 			`json:"id" form:"id"`
 	Name 					string			`json:"name" form:"name"`
@@ -15,6 +17,7 @@ type Core struct {
 	Pool					int			`json:"pool" form:"pool"`
 	Rating				float64			`json:"rating" form:"rating"`
 	User					Users 	`json:"owner" form:"owner"`
+	StayImages		[]string
 }
 
 type Users struct {
@@ -37,6 +40,12 @@ type CoreStayRequest struct {
 	Pool					int			`json:"pool" form:"pool"`
 	Rating				float64			`json:"rating" form:"rating"`
 	UserID				uint				`json:"userId" form:"userId"`	
+	Image					*multipart.FileHeader			`form:"image"`
+	ImageURI			string
+}
+
+type CoreStayImageRequest struct {
+	Image					string 			`form:"image" validate:"required"`
 }
 
 type StayDataInterface interface {

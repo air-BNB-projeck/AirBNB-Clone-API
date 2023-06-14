@@ -1,9 +1,12 @@
 package service
 
 import (
+	"alta/air-bnb/app/helper"
 	"alta/air-bnb/features/stays"
 	"errors"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -17,6 +20,21 @@ func (service *StayService) AddStay(stayData stays.CoreStayRequest) (stayId stri
 	if errValidate := service.validator.Struct(&stayData); errValidate != nil {
 		return "", errors.New("validation error: " + errValidate.Error())
 	}
+	image, errGetImage := stayData.Image.Open()
+	if errGetImage != nil {
+		return "", errors.New("failed to open file: " + errGetImage.Error())
+	}
+	defer image.Close()
+	imageKey := helper.GenerateNewId() + stayData.Image.Filename
+	_, errUpload := helper.UploaderS3().PutObject(&s3.PutObjectInput{
+		Bucket: aws.String("alta-airbnb"),
+		Key: aws.String(imageKey),
+		Body: image,
+	})
+	if errUpload != nil {
+		return "", errors.New("failed to upload file image: " + errUpload.Error())
+	}
+	stayData.ImageURI = "https://alta-airbnb.s3.ap-southeast-3.amazonaws.com/" + imageKey
 	stayId, errInsert := service.data.Insert(stayData)
 	if errInsert != nil {
 		return "", errInsert

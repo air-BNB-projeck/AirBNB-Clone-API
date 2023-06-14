@@ -20,13 +20,20 @@ func (repo *StayData) Insert(stayData stays.CoreStayRequest) (stayId string, err
 	if tx := repo.db.Create(&stayCoreMap); tx.Error != nil {
 		return "", tx.Error
 	}
+	var stayImages = StayImages{
+		ImageUrl: stayData.ImageURI,
+		StayID: stayCoreMap.ID,
+	}
+	if tx := repo.db.Create(&stayImages); tx.Error != nil {
+		return "", tx.Error
+	}
 	return stayCoreMap.ID, nil
 }
 
 // SelectAll implements stays.StayDataInterface
 func (repo *StayData) SelectAll() (allStays []stays.Core, err error) {
 	var staysData []Stays
-	if tx := repo.db.Preload("User").Find(&staysData); tx.Error != nil {
+	if tx := repo.db.Preload("User").Preload("StaysImages").Find(&staysData); tx.Error != nil {
 		return nil, tx.Error
 	}
 	fmt.Println(staysData)
@@ -38,6 +45,9 @@ func (repo *StayData) SelectAll() (allStays []stays.Core, err error) {
 			FullName: stay.User.FullName,
 			Email: stay.User.Email,
 		}
+		for _, stayImage := range stay.StaysImages {
+			stayMap.StayImages = append(stayMap.StayImages, stayImage.ImageUrl)
+		}
 		staysCoreMap = append(staysCoreMap, stayMap)
 	}
 	return staysCoreMap, nil
@@ -46,7 +56,7 @@ func (repo *StayData) SelectAll() (allStays []stays.Core, err error) {
 // Select implements stays.StayDataInterface
 func (repo *StayData) Select(stayId string) (stay stays.Core, err error) {
 	var stayData Stays
-	if tx := repo.db.Where("id = ?", stayId).Preload("User").First(&stayData); tx.Error != nil {
+	if tx := repo.db.Where("id = ?", stayId).Preload("User").Preload("StaysImages").First(&stayData); tx.Error != nil {
 		return stays.Core{}, tx.Error
 	}
 	var stayDataMap = ModelStayToCore(stayData)
@@ -54,6 +64,9 @@ func (repo *StayData) Select(stayId string) (stay stays.Core, err error) {
 		ID: stayData.User.ID,
 		FullName: stayData.User.FullName,
 		Email: stayData.User.Email,
+	}
+	for _, stayImage := range stayData.StaysImages {
+		stayDataMap.StayImages = append(stayDataMap.StayImages, stayImage.ImageUrl)
 	}
 	return stayDataMap, nil
 }
