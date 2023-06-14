@@ -9,23 +9,30 @@ import (
 
 type Stays struct {
 	ID 						string 			`gorm:"type:varchar(50);primaryKey"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	CreatedAt 		time.Time
+	UpdatedAt 		time.Time	
+	DeletedAt 		gorm.DeletedAt 	`gorm:"index"`
 	Name 					string			`gorm:"type:varchar(100);notNull"`
 	Price					float64			`gorm:"type:decimal(10,2);notNull"`
 	Description		string			`gorm:"type:text"`
 	Latitude			float64			`gorm:"type:double"`
 	Longitude			float64			`gorm:"type:double"`
 	City					string			`gorm:"type:varchar(50)"`
-	Bedrooms			int			`gorm:"type:int"`
-	Bathrooms			int			`gorm:"type:int"`
-	TV						int			`gorm:"type:int"`
-	Wifi					int			`gorm:"type:int"`
-	Pool					int			`gorm:"type:int"`
+	Bedrooms			int					`gorm:"type:int"`
+	Bathrooms			int					`gorm:"type:int"`
+	TV						int					`gorm:"type:int"`
+	Wifi					int					`gorm:"type:int"`
+	Pool					int					`gorm:"type:int"`
 	Rating				float64			`gorm:"type:double"`
 	UserID				uint				`gorm:"type:uint"`
 	User					Users				`gorm:"foreignKey:UserID"`
+	StaysImages		[]StayImages `gorm:"foreignKey:StayID"`
+}
+
+type StayImages struct {
+	gorm.Model
+	ImageUrl			string 		`gorm:"type:varchar(150)"`
+	StayID				string		`gorm:"type:varchar(50)"`
 }
 
 type Users struct {
@@ -88,6 +95,7 @@ func ModelStayToCore(stayModel Stays) stays.Core {
 		Pool: stayModel.Pool,
 		Rating: stayModel.Rating,
 		User: stays.Users{},
+		StayImages: []string{},
 	}
 }
 
