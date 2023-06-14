@@ -25,7 +25,7 @@ func (service *StayService) AddStay(stayData stays.CoreStayRequest) (stayId stri
 		return "", errors.New("failed to open file: " + errGetImage.Error())
 	}
 	defer image.Close()
-	imageKey := helper.GenerateNewId() + stayData.Image.Filename
+	imageKey := stayData.Image.Filename + "_" + helper.GenerateNewId()
 	_, errUpload := helper.UploaderS3().PutObject(&s3.PutObjectInput{
 		Bucket: aws.String("alta-airbnb"),
 		Key: aws.String(imageKey),

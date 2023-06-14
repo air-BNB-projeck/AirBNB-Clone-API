@@ -1,6 +1,8 @@
 package helper
 
 import (
+	"alta/air-bnb/app/config"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -8,9 +10,10 @@ import (
 )
 
 func UploaderS3() *s3.S3 {
+	appConfig := config.ReadEnv()
 	s3Config := &aws.Config{
 		Region: aws.String("ap-southeast-3"),
-		Credentials: credentials.NewStaticCredentials("AKIAVU6WN7VLMK6VYS6A", "zxQwQr5PhaF0nDAhOdukYa7zaw8O5s4ahBgqPsCe", ""),
+		Credentials: credentials.NewStaticCredentials(appConfig.AWS_ACCESS_KEY, appConfig.AWS_SECRET_KEY, ""),
 	}
 	s3Session, _ := session.NewSession(s3Config)
 

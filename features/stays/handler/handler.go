@@ -22,8 +22,8 @@ func (handler *StayHandler) PostStayHandler(c echo.Context) error {
 	if err != nil {
 		return helper.StatusBadRequestResponse(c, "error get file image: " + err.Error())
 	}
-	payload.Image = file 
 	userId := middlewares.ExtractTokenUserId(c)
+	payload.Image = file 
 	payload.UserID = userId
 	stayId, err := handler.service.AddStay(payload);
 	if err != nil {
@@ -33,7 +33,7 @@ func (handler *StayHandler) PostStayHandler(c echo.Context) error {
 			return helper.StatusInternalServerError(c, err.Error())
 		}
 	}
-	return helper.StatusCreated(c, "Berhasil menambahkan stays", map[string]any{
+	return helper.StatusCreated(c, "Berhasil menambahkan stay", map[string]any{
 		"stayId": stayId,
 	})
 }

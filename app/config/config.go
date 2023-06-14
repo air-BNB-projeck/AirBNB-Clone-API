@@ -15,6 +15,8 @@ type AppConfig struct {
 	DB_PORT						int
 	DB_NAME						string
 	JWT_ACCESS_TOKEN	string
+	AWS_ACCESS_KEY		string
+	AWS_SECRET_KEY		string
 }
 
 func ReadEnv() *AppConfig {
@@ -45,6 +47,14 @@ func ReadEnv() *AppConfig {
 		appConfig.JWT_ACCESS_TOKEN = val
 		isRead = true
 	}
+	if val, found := os.LookupEnv("AWS_ACCESS_KEY"); found {
+		appConfig.AWS_ACCESS_KEY = val
+		isRead = true
+	}
+	if val, found := os.LookupEnv("AWS_SECRET_KEY"); found {
+		appConfig.AWS_SECRET_KEY = val
+		isRead = true
+	}
 
 	if !isRead {
 		viper.AddConfigPath(".")
@@ -62,6 +72,8 @@ func ReadEnv() *AppConfig {
 		appConfig.DB_PORT, _ = strconv.Atoi(viper.Get("DB_PORT").(string))
 		appConfig.DB_NAME = viper.Get("DB_NAME").(string)
 		appConfig.JWT_ACCESS_TOKEN = viper.Get("JWT_ACCESS_TOKEN").(string)
+		appConfig.AWS_ACCESS_KEY = viper.Get("AWS_ACCESS_KEY").(string)
+		appConfig.AWS_SECRET_KEY = viper.Get("AWS_SECRET_KEY").(string)
 	}
 
 	return &appConfig

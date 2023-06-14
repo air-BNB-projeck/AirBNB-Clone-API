@@ -39,4 +39,4 @@ jobs:
             docker rm airbnb-container
             docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/airbnb
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/airbnb
-            docker run -d -p 80:8080 -e JWT_ACCESS_TOKEN=${{ secrets.JWT_ACCESS_TOKEN }} -e DB_USERNAME=${{ secrets.DB_USERNAME }} -e DB_PASS=${{ secrets.DB_PASS }} -e DB_HOSTNAME=${{ secrets.DB_HOSTNAME }} -e DB_PORT=${{ secrets.DB_PORT }} -e DB_NAME=${{ secrets.DB_NAME }} --name airbnb-container ${{ secrets.DOCKERHUB_USERNAME }}/airbnb:latest
+            docker run -d -p 80:8080 -e JWT_ACCESS_TOKEN=${{ secrets.JWT_ACCESS_TOKEN }} -e DB_USERNAME=${{ secrets.DB_USERNAME }} -e DB_PASS=${{ secrets.DB_PASS }} -e DB_HOSTNAME=${{ secrets.DB_HOSTNAME }} -e DB_PORT=${{ secrets.DB_PORT }} -e DB_NAME=${{ secrets.DB_NAME }} -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} -e AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }} --name airbnb-container ${{ secrets.DOCKERHUB_USERNAME }}/airbnb:latest
