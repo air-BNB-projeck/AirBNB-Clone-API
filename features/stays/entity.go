@@ -17,7 +17,7 @@ type Core struct {
 	Pool					int			`json:"pool" form:"pool"`
 	Rating				float64			`json:"rating" form:"rating"`
 	User					Users 	`json:"owner" form:"owner"`
-	StayImages		[]string
+	StayImages		[]string `json:"images" form:"images"`
 }
 
 type Users struct {
@@ -54,7 +54,6 @@ type StayDataInterface interface {
 	SelectAll() (allStays []Core, err error)
 	Update(stayId string, stayData CoreStayRequest) error
 	Delete(stayId string) error
-	InsertImage(stayId string, coreStayImage CoreStayImageRequest)
 }
 
 type StayServiceInterface interface {
