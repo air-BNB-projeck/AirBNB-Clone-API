@@ -3,13 +3,24 @@ package data
 import (
 	"alta/air-bnb/app/helper"
 	"alta/air-bnb/features/stays"
-	"fmt"
 
 	"gorm.io/gorm"
 )
 
 type StayData struct {
 	db *gorm.DB
+}
+
+// InsertStayImage implements stays.StayDataInterface
+func (repo *StayData) InsertStayImage(stayId string, imageUrl string) error {
+	var stayImageData = StayImages{
+		ImageUrl: imageUrl,
+		StayID: stayId,
+	}
+	if tx := repo.db.Create(&stayImageData); tx.Error != nil {
+		return tx.Error
+	}
+	return nil
 }
 
 // Insert implements stays.StayDataInterface
@@ -22,7 +33,7 @@ func (repo *StayData) Insert(stayData stays.CoreStayRequest) (stayId string, err
 	}
 	var stayImages = StayImages{
 		ImageUrl: stayData.ImageURI,
-		StayID: stayCoreMap.ID,
+		StayID:   stayCoreMap.ID,
 	}
 	if tx := repo.db.Create(&stayImages); tx.Error != nil {
 		return "", tx.Error
@@ -36,14 +47,13 @@ func (repo *StayData) SelectAll() (allStays []stays.Core, err error) {
 	if tx := repo.db.Preload("User").Preload("StaysImages").Find(&staysData); tx.Error != nil {
 		return nil, tx.Error
 	}
-	fmt.Println(staysData)
 	var staysCoreMap []stays.Core
 	for _, stay := range staysData {
 		stayMap := ModelStayToCore(stay)
 		stayMap.User = stays.Users{
-			ID: stay.User.ID,
+			ID:       stay.User.ID,
 			FullName: stay.User.FullName,
-			Email: stay.User.Email,
+			Email:    stay.User.Email,
 		}
 		for _, stayImage := range stay.StaysImages {
 			stayMap.StayImages = append(stayMap.StayImages, stayImage.ImageUrl)
@@ -61,9 +71,9 @@ func (repo *StayData) Select(stayId string) (stay stays.Core, err error) {
 	}
 	var stayDataMap = ModelStayToCore(stayData)
 	stayDataMap.User = stays.Users{
-		ID: stayData.User.ID,
+		ID:       stayData.User.ID,
 		FullName: stayData.User.FullName,
-		Email: stayData.User.Email,
+		Email:    stayData.User.Email,
 	}
 	for _, stayImage := range stayData.StaysImages {
 		stayDataMap.StayImages = append(stayDataMap.StayImages, stayImage.ImageUrl)

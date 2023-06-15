@@ -45,7 +45,7 @@ type CoreStayRequest struct {
 }
 
 type CoreStayImageRequest struct {
-	Image					string 			`form:"image" validate:"required"`
+	Image					*multipart.FileHeader 			`form:"image" validate:"required"`
 }
 
 type StayDataInterface interface {
@@ -54,6 +54,7 @@ type StayDataInterface interface {
 	SelectAll() (allStays []Core, err error)
 	Update(stayId string, stayData CoreStayRequest) error
 	Delete(stayId string) error
+	InsertStayImage(stayId string, imageUrl string) error
 }
 
 type StayServiceInterface interface {
@@ -62,4 +63,5 @@ type StayServiceInterface interface {
 	GetAllStays() (stays []Core, err error)
 	EditStay(stayId string, stayData CoreStayRequest) error
 	DeleteStay(stayId string) error
+	AddStayImage(stayId string, image CoreStayImageRequest) error
 }
