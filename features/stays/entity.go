@@ -54,6 +54,7 @@ type StayDataInterface interface {
 	SelectAll() (allStays []Core, err error)
 	Update(stayId string, stayData CoreStayRequest) error
 	Delete(stayId string) error
+	InsertImage(stayId string, coreStayImage CoreStayImageRequest)
 }
 
 type StayServiceInterface interface {
