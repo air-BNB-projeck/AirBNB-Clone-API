@@ -27,6 +27,7 @@ type Stays struct {
 	UserID				uint				`gorm:"type:uint"`
 	User					Users				`gorm:"foreignKey:UserID"`
 	StaysImages		[]StayImages `gorm:"foreignKey:StayID"`
+	StayReviews 	[]StayReviews	`gorm:"foreignKey:StayID"`
 }
 
 type StayImages struct {
@@ -35,10 +36,28 @@ type StayImages struct {
 	StayID				string		`gorm:"type:varchar(50)"`
 }
 
+type StayReviews struct {
+	gorm.Model
+	UserID				uint 			`gorm:"type:uint"`
+	User					Users			`gorm:"foreignKey:UserID"`
+	StayID				string		`gorm:"type:varchar(100)"`
+	Review				string		`gorm:"type:text"`
+	Rating				uint			`gorm:"type:uint"`
+}
+
 type Users struct {
 	ID				string			`gorm:"type:uint;primaryKey"`
 	FullName	string 			`gorm:"type:varchar(100);notNull"`
 	Email			string 			`gorm:"type:varchar(50);unique:notNull"`
+}
+
+func CoreReviewToModels(reviewData stays.CoreStayReviewRequest) StayReviews {
+	return StayReviews{
+		UserID: reviewData.UserID,
+		StayID: reviewData.StayID,
+		Review: reviewData.Review,
+		Rating: reviewData.Rating,
+	}
 }
 
 func CoreStayToModel(stayCore stays.CoreStayRequest) Stays {
@@ -96,6 +115,7 @@ func ModelStayToCore(stayModel Stays) stays.Core {
 		Rating: stayModel.Rating,
 		User: stays.Users{},
 		StayImages: []string{},
+		StayReviews: []stays.StayReviews{},
 	}
 }
 

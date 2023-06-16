@@ -11,8 +11,61 @@ import (
 )
 
 type StayService struct {
-	data stays.StayDataInterface
+	data      stays.StayDataInterface
 	validator *validator.Validate
+}
+
+// DeleteStayImage implements stays.StayServiceInterface
+func (service *StayService) DeleteStayImage(stayId string, imageId uint) error {
+	// imageUrl := service.data.GetStayImageURI(stayId, imageId)
+	// // _, errDeleteS3 := helper.UploaderS3().DeleteObject(&s3.DeleteObjectInput{
+	// // 	Bucket: aws.String("alta-airbnb"),
+	// // 	Key: aws.String(imageUrl),
+	// // })
+	// // if errDeleteS3 != nil {
+	// // 	return errors.New("error delete object in s3: " + errDeleteS3.Error())
+	// // }
+	if err := service.data.DeleteStayImage(stayId, imageId); err != nil {
+		return err
+	}
+	return nil
+}
+
+// AddStayReview implements stays.StayServiceInterface
+func (service *StayService) AddStayReview(reviewData stays.CoreStayReviewRequest) error {
+	if errValidate := service.validator.Struct(reviewData); errValidate != nil {
+		return errors.New("error validation: " + errValidate.Error())
+	}
+	if err := service.data.InsertStayReview(reviewData); err != nil {
+		return err
+	}
+	return nil
+}
+
+// AddStayImage implements stays.StayServiceInterface
+func (service *StayService) AddStayImage(stayId string, image stays.CoreStayImageRequest) error {
+	if errValidate := service.validator.Struct(image); errValidate != nil {
+		return errors.New("error validation: " + errValidate.Error())
+	}
+	imageData, errGetImage := image.Image.Open()
+	if errGetImage != nil {
+		return errors.New("failed to open file: " + errGetImage.Error())
+	}
+	defer imageData.Close()
+	imageKey := helper.GenerateNewId() + "_" + image.Image.Filename
+	_, errUpload := helper.UploaderS3().PutObject(&s3.PutObjectInput{
+		Bucket: aws.String("alta-airbnb"),
+		Key:    aws.String(imageKey),
+		Body:   imageData,
+	})
+	if errUpload != nil {
+		return errors.New("failed to upload file image: " + errUpload.Error())
+	}
+	imageUrl := "https://alta-airbnb.s3.ap-southeast-3.amazonaws.com/" + imageKey
+	if err := service.data.InsertStayImage(stayId, imageUrl); err != nil {
+		return err
+	}
+	return nil
 }
 
 // AddStay implements stays.StayServiceInterface
@@ -25,11 +78,11 @@ func (service *StayService) AddStay(stayData stays.CoreStayRequest) (stayId stri
 		return "", errors.New("failed to open file: " + errGetImage.Error())
 	}
 	defer image.Close()
-	imageKey := stayData.Image.Filename + "_" + helper.GenerateNewId()
+	imageKey := helper.GenerateNewId() + "_" + stayData.Image.Filename
 	_, errUpload := helper.UploaderS3().PutObject(&s3.PutObjectInput{
 		Bucket: aws.String("alta-airbnb"),
-		Key: aws.String(imageKey),
-		Body: image,
+		Key:    aws.String(imageKey),
+		Body:   image,
 	})
 	if errUpload != nil {
 		return "", errors.New("failed to upload file image: " + errUpload.Error())
@@ -48,12 +101,12 @@ func (service *StayService) GetAllStays() (stays []stays.Core, err error) {
 	if errGetAll != nil {
 		return nil, errGetAll
 	}
-	return allStays, nil 
+	return allStays, nil
 }
 
 // GetStay implements stays.StayServiceInterface
 func (service *StayService) GetStay(stayId string) (stay stays.Core, err error) {
-	stayData, errGet := service.data.Select(stayId);
+	stayData, errGet := service.data.Select(stayId)
 	if errGet != nil {
 		return stays.Core{}, errGet
 	}
@@ -81,7 +134,7 @@ func (service *StayService) DeleteStay(stayId string) error {
 
 func New(data stays.StayDataInterface) stays.StayServiceInterface {
 	return &StayService{
-		data: data,
+		data:      data,
 		validator: validator.New(),
 	}
 }

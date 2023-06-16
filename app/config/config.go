@@ -17,6 +17,7 @@ type AppConfig struct {
 	JWT_ACCESS_TOKEN	string
 	AWS_ACCESS_KEY		string
 	AWS_SECRET_KEY		string
+	MIDTRANS_SERVER_KEY	string
 }
 
 func ReadEnv() *AppConfig {
@@ -54,6 +55,10 @@ func ReadEnv() *AppConfig {
 	if val, found := os.LookupEnv("AWS_SECRET_KEY"); found {
 		appConfig.AWS_SECRET_KEY = val
 		isRead = true
+	}	
+	if val, found := os.LookupEnv("MIDTRANS_SERVER_KEY"); found {
+		appConfig.MIDTRANS_SERVER_KEY = val
+		isRead = true
 	}
 
 	if !isRead {
@@ -74,6 +79,7 @@ func ReadEnv() *AppConfig {
 		appConfig.JWT_ACCESS_TOKEN = viper.Get("JWT_ACCESS_TOKEN").(string)
 		appConfig.AWS_ACCESS_KEY = viper.Get("AWS_ACCESS_KEY").(string)
 		appConfig.AWS_SECRET_KEY = viper.Get("AWS_SECRET_KEY").(string)
+		appConfig.MIDTRANS_SERVER_KEY = viper.Get("MIDTRANS_SERVER_KEY").(string)
 	}
 
 	return &appConfig
