@@ -1,11 +1,13 @@
 package reservations
 
+import "time"
+
 type CoreReservation struct {
 	ID						string		`json:"id" form:"id"`
 	User					Users			`json:"users" form:"users"`
 	Stay					Stays			`json:"stays" form:"stays"`
-	StartDate			string		`json:"startDate" form:"startDate"`
-	EndDate				string		`json:"endDate" form:"endDate"`
+	StartDate			time.Time		`json:"startDate" form:"startDate"`
+	EndDate				time.Time		`json:"endDate" form:"endDate"`
 	TransactionID	string		`json:"transactionId" form:"transactionId"`
 	Status				string		`json:"status" form:"status"`
 	PaymentType		string		`json:"paymentType" form:"paymentType"`
@@ -35,12 +37,18 @@ type CoreReservationRequest struct {
 	EndDate				string 			`json:"endDate" form:"endDate" validate:"required"`
 }
 
+type CoreReservationCheckRequest struct {
+	StayID				string			`json:"stayId" form:"stayId" validate:"required"`
+	StartDate			string			`json:"startDate" form:"startDate" validate:"required"`
+	EndDate				string 			`json:"endDate" form:"endDate" validate:"required"`
+}
+
 type ReservationsDataInterface interface {
 	InsertReservation(reservationData CoreReservationRequest) (reservationId string, err error)
-	SelectReservationAvailable(reservationId string) (isAvailable bool)
+	SelectReservationAvailable(reservationData CoreReservationCheckRequest) (isAvailable bool, err error)
 }
 
 type ReservationServiceInterface interface {
 	AddReservation(reservationData CoreReservationRequest) (reservationId string, err error)
-	CheckReservationAvailable(reservationId string) (isAvailable bool)
+	CheckReservationAvailable(reservationData CoreReservationCheckRequest) (isAvailable bool, err error)
 }

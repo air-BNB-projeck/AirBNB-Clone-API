@@ -28,6 +28,26 @@ func (handler *ReservationHandler) PostReservationHandler(c echo.Context) error 
 	})
 }
 
+func (handler *ReservationHandler) PostReservationCheckHandler(c echo.Context) error {
+	var payload reservations.CoreReservationCheckRequest
+	if errBind := c.Bind(&payload); errBind != nil {
+		return helper.StatusBadRequestResponse(c, "echo error bind: " + errBind.Error())
+	}
+	isAvailable, errGet := handler.service.CheckReservationAvailable(payload)
+	if errGet != nil {
+		return helper.StatusInternalServerError(c, errGet.Error())
+	}
+	if isAvailable {
+		return helper.StatusOKWithData(c, "", map[string]any{
+			"roomStatus": "Tersedia",
+		}) 
+	} else {
+		return helper.StatusOKWithData(c, "", map[string]any{
+			"roomStatus": "Tidak Tersedia",
+		}) 
+	}
+}
+
 func New(service reservations.ReservationServiceInterface) *ReservationHandler {
 	return &ReservationHandler{
 		service: service,

@@ -1,13 +1,17 @@
 package data
 
-import "alta/air-bnb/features/reservations"
+import (
+	"alta/air-bnb/app/helper"
+	"alta/air-bnb/features/reservations"
+	"time"
+)
 
 type Reservations struct {
 	ID						string 				`gorm:"type:varchar(100);primaryKey"`
 	UserID				uint					`gorm:"type:uint;notNull"`
 	StayID				string				`gorm:"type:varchar(100);notNull"`
-	StartDate			string				`gorm:"type:varchar(50);notNull"`
-	EndDate				string				`gorm:"type:varchar(50);notNull"`
+	StartDate			time.Time			
+	EndDate				time.Time			
 	TransactionID	string				`gorm:"type:varchar(100)"`
 	OrderID				string				`gorm:"type:varchar(100)"`
 	TransactionStatus		string				`gorm:"type:varchar(50)"`
@@ -35,10 +39,20 @@ type Stays struct {
 }
 
 func CoreRequestToModel(reservationData reservations.CoreReservationRequest) Reservations {
+	startDate, _ := helper.ParseDate(reservationData.StartDate)
+	endDate, _ := helper.ParseDate(reservationData.EndDate)
 	return Reservations{
 		UserID: reservationData.UserID,
 		StayID: reservationData.StayID,
-		StartDate: reservationData.StartDate,
-		EndDate: reservationData.EndDate,
+		StartDate: startDate,
+		EndDate: endDate,
+	}
+}
+
+func ModelToCoreReservation(reservation Reservations) reservations.CoreReservation {
+	return reservations.CoreReservation{
+		ID: reservation.ID,
+		StartDate: reservation.StartDate,
+		EndDate: reservation.EndDate,
 	}
 }
