@@ -19,3 +19,11 @@ func SubstractDate(startDate string, endDate string) (uint, error) {
 	duration := endDateParse.Sub(startDateParse)
 	return uint(duration.Hours() / 24), nil
 }
+
+func ParseDate(date string) (time.Time, error) {
+	parseDate, errParseDate := time.Parse("02/01/2006", date)
+	if errParseDate != nil {
+		return time.Time{}, errParseDate
+	}
+	return parseDate, errParseDate
+}

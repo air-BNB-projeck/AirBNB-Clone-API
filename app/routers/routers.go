@@ -47,4 +47,5 @@ func InitRouters(db *gorm.DB, e *echo.Echo) {
 	e.POST("/stays/:id/reviews", StayHandler.PostStayReviewHandler, middlewares.JWTMiddleware())
 
 	e.POST("/reservations", ReservationHandler.PostReservationHandler, middlewares.JWTMiddleware())
+	e.POST("/reservations/check", ReservationHandler.PostReservationCheckHandler, middlewares.JWTMiddleware())
 }
