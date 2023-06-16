@@ -9,7 +9,7 @@ import (
 )
 
 func InitMigrate(db *gorm.DB) error {
-	err := db.AutoMigrate(&_userData.Users{}, &_stayData.Stays{}, &_stayData.StayImages{}, &_reservationData.Reservations{})
+	err := db.AutoMigrate(&_userData.Users{}, &_stayData.Stays{}, &_stayData.StayImages{}, &_stayData.StayReviews{}, &_reservationData.Reservations{})
 	if err != nil {
 		return err
 	}
