@@ -21,7 +21,7 @@ Airbnb Clone API is a comprehensive web application that replicates the function
 
 To get started with the Airbnb Clone API, follow the steps below:
 
-1. Clone the repository: `git clone https://github.com/your_username/AirbnbCloneAPI.git`
+1. Clone the repository: `git clone https://github.com/air-BNB-projeck/AirbnbCloneAPI.git`
 
 2. Install the required dependencies by running: `go mod download`
 
